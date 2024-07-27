@@ -7,7 +7,7 @@ resource "libvirt_volume" "sandbox-a-qcow2" {
 }
 
 data "template_file" "user_data-sandbox-a" {
-  template = "${file("${path.module}/cloud_init.cfg")}"
+  template = "${file("${path.module}/cloud_init.yml")}"
   vars = {
     hostname   = "sandbox-a.home.lab"
     ip_address = "192.168.122.151/24"
