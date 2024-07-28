@@ -73,7 +73,12 @@ Create the VMs:
 
 ```terraform apply```
 
-If you have ```virt-manager``` installed, you can check the process there. The VMs will reboot to apply network config, after that you will be able to access them via ssh
+If you have ```virt-manager``` installed, you can check the process there. The VMs will reboot to apply network config, after that you will be able to access them via ssh. Check the ```sandbox-[a,b].tf``` files for the IP address.
+
+To use hostnames instead of IP addresses use something like this:
+```
+sudo sh -c 'echo "\n#custom config\n192.168.122.151\tsandbox-a.home.lab\n192.168.122.152\tsandbox-b.home.lab" >> /etc/hosts'
+```
 
 ## TODO
 
