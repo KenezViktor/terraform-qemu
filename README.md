@@ -43,6 +43,22 @@ sudo systemctl restart qemu
 
 The permission denied problem should be solved.
 
+### Download Debian image
+
+Run the following script with elevated privileges if required:
+
+```sudo ./get-debian-cloudimg```
+
+You can copy it to you path like:
+```
+sudo cp get-debian-cloudimg /usr/local/bin/get-debian-cloudimg
+```
+
+You can also create a cronjob for it:
+```
+0 2 * * * /usr/local/bin/get-debian-cloudimg
+```
+
 ### Run Terraform
 
 Get the provider for libvirt and cloud-init:
