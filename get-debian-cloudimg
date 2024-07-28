@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# download the debian amd64 cloudimage
+wget -O /var/lib/libvirt/images/debian-12-genericcloud-amd64.qcow2 'https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2'
