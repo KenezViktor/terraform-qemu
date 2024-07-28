@@ -24,7 +24,7 @@ The output shoud show either show ```VT-x``` or ```AMD-V```
 
 For Debian/Ubuntu you can use this quide: https://www.tecmint.com/install-qemu-kvm-ubuntu-create-virtual-machines/
 
-For other distros, follow their specific quide, however it should be a similar process.
+For other distros, follow their specific guide, however it should be a similar process.
 
 For reasons, terraform might not be able to access the VMs it created(permission denied).
 
