@@ -49,7 +49,7 @@ Run the following script with elevated privileges if required:
 
 ```sudo ./get-debian-cloudimg```
 
-You can copy it to you path like:
+You can copy it to your path:
 ```
 sudo cp get-debian-cloudimg /usr/local/bin/get-debian-cloudimg
 ```
@@ -73,15 +73,22 @@ Create the VMs:
 
 ```terraform apply```
 
-If you have ```virt-manager``` installed, you can check the process there. The VMs will reboot to apply network config, after that you will be able to access them via ssh. Check the ```sandbox-[a,b].tf``` files for the IP address.
+If you have ```virt-manager``` installed, you can check the process there. The VMs will reboot to apply network config, after that you will be able to access them via ssh. Check the ```sandbox.tf``` file for the IP addresses.
 
 To use hostnames instead of IP addresses use something like this:
 ```
-sudo sh -c 'echo "\n#custom config\n192.168.122.151\tsandbox-a.home.lab\n192.168.122.152\tsandbox-b.home.lab" >> /etc/hosts'
+sudo sh -c 'echo "\n#custom config\n192.168.122.151\tsandbox-0.home.lab\n192.168.122.152\tsandbox-1.home.lab" >> /etc/hosts'
+```
+
+## Config for Ansible
+
+### Install collection
+
+For Ansible in order to use the dynamically generated inventory run the following
+```
+ansible-galaxy collection install cloud.terraform
 ```
 
 ## TODO
 
-- make Terraform and Ansible to play nice together
 - experiment with cloud-init
-- experiment with Terraform's variables
