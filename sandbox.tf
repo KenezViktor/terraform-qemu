@@ -1,5 +1,5 @@
 resource "libvirt_volume" "sandbox-qcow2" {
-  count = 2
+  count = var.number_of_sandboxes
   name = "debian-12-sandbox-${count.index}.qcow2"
   pool = "default"
   source = var.image
@@ -8,7 +8,7 @@ resource "libvirt_volume" "sandbox-qcow2" {
 
 data "template_file" "user_data-sandbox" {
   template = "${file("${path.module}/cloud_init.yml")}"
-  count = 2
+  count = var.number_of_sandboxes
   vars = {
     hostname   = "sandbox-${count.index}.home.lab"
     ip_address = "192.168.122.${count.index + 100}/24"
@@ -18,15 +18,15 @@ data "template_file" "user_data-sandbox" {
 }
 
 resource "libvirt_cloudinit_disk" "commoninit-sandbox" {
-  count = 2
+  count = var.number_of_sandboxes
   name = "commoninit-sandbox-${count.index}.iso"
   pool = "default"
   user_data = "${data.template_file.user_data-sandbox[count.index].rendered}"
 }
 
 resource "libvirt_domain" "sandbox" {
-  count = 2
-  name = "sandbox-${count.index}"
+  count = var.number_of_sandboxes
+  name = "${data.template_file.user_data-sandbox[count.index].vars.hostname}"
   memory = 2048
   vcpu = 2
 
@@ -53,18 +53,31 @@ resource "libvirt_domain" "sandbox" {
   }
 }
 
-resource "null_resource" "sandbox" {
-  count = 2
+# wait until VMs become ready
+# deletes old hostkey
+# waits util ssh becomes ready
+# adds new ssh hostkeys
+resource "terraform_data" "sandbox-up" {
+  count = var.number_of_sandboxes
 
   provisioner "local-exec" {
     command = "ssh-keygen -f ~/.ssh/known_hosts -R ${data.template_file.user_data-sandbox[count.index].vars.hostname}"
   }
 
   provisioner "local-exec" {
-    command = "until nc -zv ${data.template_file.user_data-sandbox[count.index].vars.hostname} 22; do echo 'Waiting for ssh to be avaiable'; sleep 15; done"
+    command = "until nc -zv ${data.template_file.user_data-sandbox[count.index].vars.hostname} 22; do sleep 15; done"
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/Documents/ansible/personal-ansible-inventory --diff --limit ${data.template_file.user_data-sandbox[count.index].vars.hostname} ~/Documents/ansible/personal-ansible/common.yml"
+    command = "ssh-keyscan -t rsa -H ${data.template_file.user_data-sandbox[count.index].vars.hostname} >> ~/.ssh/known_hosts"
   }
+}
+
+resource "terraform_data" "sandbox-ansible" {
+  provisioner "local-exec" {
+    command = "ansible-playbook -i inventory.yml --diff ${var.ansible_playbook_path}/sandbox-servers.yml"
+  }
+
+  depends_on = [ terraform_data.sandbox-up, ansible_group.sandbox, ansible_host.sandbox ]
+
 }
