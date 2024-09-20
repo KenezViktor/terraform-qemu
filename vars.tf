@@ -4,12 +4,12 @@ variable "image" {
   description = "Source of the Debian image"
 }
 
-variable "ansible_playbook_path" {
-  default = "./ansible-playbooks"
-  description = "path to ansible playbooks"
+variable "number_of_sandboxes" {
+  default = 2
+  description = "The number of how many sandbox servers do we need"
 }
 
-variable "ansible_inventory_path" {
+variable "ansible_playbook_path" {
   default = "./ansible-playbooks"
   description = "path to ansible playbooks"
 }
