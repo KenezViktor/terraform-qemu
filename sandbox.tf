@@ -26,14 +26,16 @@ resource "libvirt_cloudinit_disk" "commoninit-sandbox" {
 
 resource "libvirt_domain" "sandbox" {
   count = var.number_of_sandboxes
-  name = "${data.template_file.user_data-sandbox[count.index].vars.hostname}"
+  name = join("", [var.sandbox_subdomain, count.index, var.domain_name])
   memory = 2048
   vcpu = 2
 
   cloudinit = "${libvirt_cloudinit_disk.commoninit-sandbox[count.index].id}"
 
   network_interface {
-    network_name = "default"
+    network_id = libvirt_network.sandbox.id
+    hostname = join("", [var.sandbox_subdomain, count.index, var.domain_name])
+    addresses = [ join("", [var.sandbox-network.ipv4, (count.index + 100)]) ]
   }
 
   disk {
@@ -51,28 +53,33 @@ resource "libvirt_domain" "sandbox" {
     listen_address = "address"
     autoport = true
   }
+
+  depends_on = [ libvirt_network.sandbox ]
 }
 
 # wait until VMs become ready
-# deletes old hostkey
-# waits util ssh becomes ready
-# adds new ssh hostkeys
 resource "terraform_data" "sandbox-up" {
   count = var.number_of_sandboxes
 
+  # deletes old hostkey
   provisioner "local-exec" {
-    command = "ssh-keygen -f ~/.ssh/known_hosts -R ${data.template_file.user_data-sandbox[count.index].vars.hostname}"
+    command = "ssh-keygen -f ~/.ssh/known_hosts -R ${join("", [var.sandbox_subdomain, count.index, var.domain_name])}"
   }
 
+  # waits util ssh becomes ready
   provisioner "local-exec" {
-    command = "until nc -zv ${data.template_file.user_data-sandbox[count.index].vars.hostname} 22; do sleep 15; done"
+    command = "until nc -zv ${join("", [var.sandbox_subdomain, count.index, var.domain_name])} 22; do sleep 15; done"
   }
 
+  # adds new ssh hostkeys
   provisioner "local-exec" {
-    command = "ssh-keyscan -t rsa -H ${data.template_file.user_data-sandbox[count.index].vars.hostname} >> ~/.ssh/known_hosts"
+    command = "ssh-keyscan -t rsa -H ${join("", [var.sandbox_subdomain, count.index, var.domain_name])} >> ~/.ssh/known_hosts"
   }
+
+  depends_on = [ libvirt_domain.sandbox ]
 }
 
+# Run ansible
 resource "terraform_data" "sandbox-ansible" {
   provisioner "local-exec" {
     command = "ansible-playbook -i inventory.yml --diff ${var.ansible_playbook_path}/sandbox-servers.yml"
