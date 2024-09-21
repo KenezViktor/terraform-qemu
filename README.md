@@ -20,7 +20,7 @@ Before installation, check if virtualization is enabled:
 
 ```lscpu | grep '^Virt'```
 
-The output shoud show either show ```VT-x``` or ```AMD-V```
+The output should show either ```VT-x``` or ```AMD-V```
 
 For Debian/Ubuntu you can use this quide: https://www.tecmint.com/install-qemu-kvm-ubuntu-create-virtual-machines/
 
