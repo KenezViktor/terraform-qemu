@@ -7,7 +7,7 @@ resource "ansible_group" "sandbox" {
 
 resource "ansible_host" "sandbox" {
   count = var.number_of_sandboxes
-  name = "${data.template_file.user_data-sandbox[count.index].vars.hostname}"
+  name = join("", [var.sandbox_subdomain, count.index, var.domain_name])
   groups = [ ansible_group.sandbox.name ]
 }
 /*
