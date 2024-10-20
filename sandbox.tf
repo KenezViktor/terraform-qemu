@@ -9,12 +9,6 @@ resource "libvirt_volume" "sandbox-qcow2" {
 data "template_file" "user_data-sandbox" {
   template = "${file("${path.module}/cloud_init.yml")}"
   count = var.number_of_sandboxes
-  vars = {
-    hostname   = "sandbox-${count.index}.home.lab"
-    ip_address = "192.168.122.${count.index + 100}/24"
-    gateway    = "192.168.122.1"
-    dns        = "192.168.122.1"
-  }
 }
 
 resource "libvirt_cloudinit_disk" "commoninit-sandbox" {
