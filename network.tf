@@ -8,4 +8,8 @@ resource "libvirt_network" "sandbox" {
   dhcp {
     enabled = false
   }
+
+  dns {
+    enabled = true
+  }
 }
